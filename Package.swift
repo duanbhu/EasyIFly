@@ -20,7 +20,7 @@ let package = Package(
         .binaryTarget(
             name: "iflyMSC",
             url: "https://github.com/duanbhu/EasyIFly/releases/download/1.0.0/iflyMSC.xcframework.zip",
-            checksum: "6871a20922ce25777bce81cb810d9346d0e88f82172b83d97ab7ac8118c1f47c"
+            checksum: "88cb56ecd657210d7d53afc977753f92c97ad5deddf2e557883df98bee3cd491"
         ),
     ]
 )
