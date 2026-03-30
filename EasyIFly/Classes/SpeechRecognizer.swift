@@ -53,7 +53,7 @@ public class SpeechRecognizer: NSObject {
             (c.language,    IFlySpeechConstant.language()),
             (c.accent,      IFlySpeechConstant.accent()),
             (c.dot,         IFlySpeechConstant.asr_PTT()),
-            ("1",           "audio_source"),
+            ("0",           "audio_source"),
             ("json",        IFlySpeechConstant.result_TYPE()),
             ("asr.pcm",     IFlySpeechConstant.asr_AUDIO_PATH()),
         ]
