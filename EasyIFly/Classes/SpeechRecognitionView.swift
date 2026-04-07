@@ -117,6 +117,8 @@ public class SpeechRecognitionView: UIView {
             self?.onResult?(result)
             self?.dismiss()
         }
+        leftImageView.startAnimating()
+        rightImageView.startAnimating()
         // 不自动开始识别，等待外部调用 startListening()
     }
     
@@ -125,8 +127,6 @@ public class SpeechRecognitionView: UIView {
         guard !isListening else { return }
         isListening = true
         recognizer.startListening()
-        leftImageView.startAnimating()
-        rightImageView.startAnimating()
     }
     
     /// 停止语音识别
