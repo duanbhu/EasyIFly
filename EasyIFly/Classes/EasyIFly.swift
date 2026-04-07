@@ -9,12 +9,14 @@ public class EasyIFly {
 
     public static func showSpeechInput(
         title: String = "请语音输入",
+        delay: TimeInterval = 0.0,
         resultFilter: @escaping (String) -> String?,
         onResult: @escaping (String) -> Void,
         onDismiss: (() -> Void)? = nil
     ) {
         SpeechRecognitionView.show(
             title: title,
+            delay: delay,
             resultFilter: resultFilter,
             onResult: onResult,
             onDismiss: onDismiss
@@ -23,11 +25,13 @@ public class EasyIFly {
 
     /// 识别手机号（11位）
     public static func showPhoneInput(
+        delay: TimeInterval = 0.0,
         onResult: @escaping (String) -> Void,
         onDismiss: (() -> Void)? = nil
     ) {
         showSpeechInput(
             title: "请语音输入手机号",
+            delay: delay,
             resultFilter: { text in
                 let digits = text.filter(\.isNumber)
                 return digits.count == 11 ? digits : nil
@@ -39,11 +43,13 @@ public class EasyIFly {
 
     /// 识别虚拟号（18888888888-1234）或普通手机号（11位）
     public static func showVirtualNumberInput(
+        delay: TimeInterval = 0.0,
         onResult: @escaping (String) -> Void,
         onDismiss: (() -> Void)? = nil
     ) {
         showSpeechInput(
             title: "请语音输入手机号",
+            delay: delay,
             resultFilter: { text in
                 let digits = text.filter(\.isNumber)
                 switch digits.count {

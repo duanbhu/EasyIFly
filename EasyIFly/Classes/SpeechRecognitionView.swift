@@ -113,9 +113,15 @@ public class SpeechRecognitionView: UIView {
             self?.onResult?(result)
             self?.dismiss()
         }
-        recognizer.startListening()
-        leftImageView.startAnimating()
-        rightImageView.startAnimating()
+        startListeningWithDelay(0.0)
+    }
+    
+    private func startListeningWithDelay(_ delay: TimeInterval) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
+            self?.recognizer.startListening()
+            self?.leftImageView.startAnimating()
+            self?.rightImageView.startAnimating()
+        }
     }
 
     @objc private func dismiss() {
@@ -155,6 +161,7 @@ public extension SpeechRecognitionView {
     /// 以半透明遮罩形式展示在 window 上
     static func show(
         title: String = "请语音输入",
+        delay: TimeInterval = 0.0,
         resultFilter: @escaping (String) -> String?,
         onResult: @escaping (String) -> Void,
         onDismiss: (() -> Void)? = nil
@@ -189,5 +196,14 @@ public extension SpeechRecognitionView {
             onDismiss?()
         }
         overlay.addTarget(view, action: #selector(dismiss), for: .touchUpInside)
+        
+        // 延迟启动语音识别
+        if delay > 0 {
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                view.recognizer.startListening()
+                view.leftImageView.startAnimating()
+                view.rightImageView.startAnimating()
+            }
+        }
     }
 }
