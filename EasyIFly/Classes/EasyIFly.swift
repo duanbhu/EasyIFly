@@ -9,14 +9,14 @@ public class EasyIFly {
 
     public static func showSpeechInput(
         title: String = "请语音输入",
-        delay: TimeInterval = 0.0,
+        autoStart: Bool = true,
         resultFilter: @escaping (String) -> String?,
         onResult: @escaping (String) -> Void,
         onDismiss: (() -> Void)? = nil
-    ) {
-        SpeechRecognitionView.show(
+    ) -> SpeechRecognitionView? {
+        return SpeechRecognitionView.show(
             title: title,
-            delay: delay,
+            autoStart: autoStart,
             resultFilter: resultFilter,
             onResult: onResult,
             onDismiss: onDismiss
@@ -24,14 +24,15 @@ public class EasyIFly {
     }
 
     /// 识别手机号（11位）
+    @discardableResult
     public static func showPhoneInput(
-        delay: TimeInterval = 0.0,
+        autoStart: Bool = true,
         onResult: @escaping (String) -> Void,
         onDismiss: (() -> Void)? = nil
-    ) {
-        showSpeechInput(
+    ) -> SpeechRecognitionView? {
+        return showSpeechInput(
             title: "请语音输入手机号",
-            delay: delay,
+            autoStart: autoStart,
             resultFilter: { text in
                 let digits = text.filter(\.isNumber)
                 return digits.count == 11 ? digits : nil
@@ -42,14 +43,15 @@ public class EasyIFly {
     }
 
     /// 识别虚拟号（18888888888-1234）或普通手机号（11位）
+    @discardableResult
     public static func showVirtualNumberInput(
-        delay: TimeInterval = 0.0,
+        autoStart: Bool = true,
         onResult: @escaping (String) -> Void,
         onDismiss: (() -> Void)? = nil
-    ) {
-        showSpeechInput(
+    ) -> SpeechRecognitionView? {
+        return showSpeechInput(
             title: "请语音输入手机号",
-            delay: delay,
+            autoStart: autoStart,
             resultFilter: { text in
                 let digits = text.filter(\.isNumber)
                 switch digits.count {

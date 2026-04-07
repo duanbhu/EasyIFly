@@ -6,6 +6,8 @@ public class SpeechRecognitionView: UIView {
     public var onResult: ((String) -> Void)?
     public var resultFilter: ((String) -> String?)?
     public var onDismiss: (() -> Void)?
+    
+    private var isListening = false
 
     // MARK: - UI
 
@@ -60,7 +62,9 @@ public class SpeechRecognitionView: UIView {
         setup()
     }
 
-    deinit { recognizer.stopListening() }
+    deinit { 
+        stopListening()
+    }
 
     // MARK: - Setup
 
@@ -113,19 +117,29 @@ public class SpeechRecognitionView: UIView {
             self?.onResult?(result)
             self?.dismiss()
         }
-        startListeningWithDelay(0.0)
+        // 不自动开始识别，等待外部调用 startListening()
     }
     
-    private func startListeningWithDelay(_ delay: TimeInterval) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
-            self?.recognizer.startListening()
-            self?.leftImageView.startAnimating()
-            self?.rightImageView.startAnimating()
-        }
+    /// 开始语音识别
+    public func startListening() {
+        guard !isListening else { return }
+        isListening = true
+        recognizer.startListening()
+        leftImageView.startAnimating()
+        rightImageView.startAnimating()
+    }
+    
+    /// 停止语音识别
+    public func stopListening() {
+        guard isListening else { return }
+        isListening = false
+        recognizer.stopListening()
+        leftImageView.stopAnimating()
+        rightImageView.stopAnimating()
     }
 
     @objc private func dismiss() {
-        recognizer.stopListening()
+        stopListening()
         removeFromSuperview()
         onDismiss?()
     }
@@ -159,14 +173,15 @@ public class SpeechRecognitionView: UIView {
 public extension SpeechRecognitionView {
 
     /// 以半透明遮罩形式展示在 window 上
+    @discardableResult
     static func show(
         title: String = "请语音输入",
-        delay: TimeInterval = 0.0,
+        autoStart: Bool = true,
         resultFilter: @escaping (String) -> String?,
         onResult: @escaping (String) -> Void,
         onDismiss: (() -> Void)? = nil
-    ) {
-        guard let window = UIApplication.shared.windows.first(where: \.isKeyWindow) else { return }
+    ) -> SpeechRecognitionView? {
+        guard let window = UIApplication.shared.windows.first(where: \.isKeyWindow) else { return nil }
 
         let overlay = UIControl()
         overlay.backgroundColor = UIColor.black.withAlphaComponent(0.4)
@@ -197,13 +212,11 @@ public extension SpeechRecognitionView {
         }
         overlay.addTarget(view, action: #selector(dismiss), for: .touchUpInside)
         
-        // 延迟启动语音识别
-        if delay > 0 {
-            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                view.recognizer.startListening()
-                view.leftImageView.startAnimating()
-                view.rightImageView.startAnimating()
-            }
+        // 根据 autoStart 参数决定是否自动开始识别
+        if autoStart {
+            view.startListening()
         }
+        
+        return view
     }
 }
