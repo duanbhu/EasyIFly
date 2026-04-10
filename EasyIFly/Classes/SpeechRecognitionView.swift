@@ -33,18 +33,9 @@ public class SpeechRecognitionView: UIView {
 
     private let cancelButton: UIButton = {
         let b = UIButton(type: .system)
-        b.setTitle("取消", for: .normal)
+        b.setTitle("结束录入", for: .normal)
         b.titleLabel?.font = .systemFont(ofSize: 16)
         b.backgroundColor = UIColor(red: 0.94, green: 0.95, blue: 1, alpha: 1)
-        return b
-    }()
-
-    private let confirmButton: UIButton = {
-        let b = UIButton(type: .system)
-        b.setTitle("确认", for: .normal)
-        b.setTitleColor(.white, for: .normal)
-        b.titleLabel?.font = .systemFont(ofSize: 16)
-        b.backgroundColor = .systemBlue
         return b
     }()
 
@@ -73,7 +64,7 @@ public class SpeechRecognitionView: UIView {
         layer.cornerRadius = 15
         layer.masksToBounds = true
 
-        [titleLabel, leftImageView, voiceImageView, rightImageView, cancelButton, confirmButton]
+        [titleLabel, leftImageView, voiceImageView, rightImageView, cancelButton]
             .forEach { $0.translatesAutoresizingMaskIntoConstraints = false; addSubview($0) }
 
         NSLayoutConstraint.activate([
@@ -99,18 +90,12 @@ public class SpeechRecognitionView: UIView {
 
             cancelButton.topAnchor.constraint(equalTo: voiceImageView.bottomAnchor, constant: 23),
             cancelButton.leadingAnchor.constraint(equalTo: leadingAnchor),
+            cancelButton.trailingAnchor.constraint(equalTo: trailingAnchor),
             cancelButton.bottomAnchor.constraint(equalTo: bottomAnchor),
             cancelButton.heightAnchor.constraint(equalToConstant: 55),
-
-            confirmButton.topAnchor.constraint(equalTo: cancelButton.topAnchor),
-            confirmButton.leadingAnchor.constraint(equalTo: cancelButton.trailingAnchor),
-            confirmButton.trailingAnchor.constraint(equalTo: trailingAnchor),
-            confirmButton.widthAnchor.constraint(equalTo: cancelButton.widthAnchor),
-            confirmButton.heightAnchor.constraint(equalTo: cancelButton.heightAnchor),
         ])
 
         cancelButton.addTarget(self, action: #selector(dismiss), for: .touchUpInside)
-        confirmButton.addTarget(self, action: #selector(dismiss), for: .touchUpInside)
 
         recognizer.resultFilter = { [weak self] in self?.resultFilter?($0) }
         recognizer.onResult = { [weak self] result in
