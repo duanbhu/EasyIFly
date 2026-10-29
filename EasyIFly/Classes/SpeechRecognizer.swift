@@ -1,5 +1,7 @@
 import Foundation
+#if !targetEnvironment(simulator)
 import iflyMSC
+#endif
 
 public class SpeechRecognizer: NSObject {
 
@@ -13,33 +15,69 @@ public class SpeechRecognizer: NSObject {
     /// 对识别文本做过滤/转换，返回 nil 表示结果不符合预期，继续识别
     public var resultFilter: ((String) -> String?)?
 
+    #if !targetEnvironment(simulator)
     private let recognizer: IFlySpeechRecognizer = .sharedInstance()
+
+    #endif
+
+    #if targetEnvironment(simulator)
+    private var isListening = false
+    #endif
 
     /// 使用前调用一次，传入讯飞 AppID
     public static func setup(appid: String) {
+        #if !targetEnvironment(simulator)
         IFlySpeechUtility.createUtility("appid=\(appid)")
+        #endif
     }
 
     public override init() {
         super.init()
+        #if !targetEnvironment(simulator)
         applyConfig()
+        #endif
     }
 
     // MARK: - Public
 
     public func startListening() {
+        #if targetEnvironment(simulator)
+        guard !isListening else { return }
+        isListening = true
+        onStatus?(.beginOfSpeech)
+        #else
         recognizer.cancel()
         recognizer.delegate = self
         recognizer.startListening()
+        #endif
     }
 
     public func stopListening() {
+        #if targetEnvironment(simulator)
+        let wasListening = isListening
+        isListening = false
+        if wasListening { onStatus?(.cancel) }
+        #else
         recognizer.delegate = nil
         recognizer.stopListening()
+        #endif
     }
 
     // MARK: - Private
 
+    #if targetEnvironment(simulator)
+    /// 注入预览文本，走与真机相同的过滤和结果回调；不录音、不访问网络。
+    /// 未开始或已停止时忽略，过滤未通过时继续等待输入。
+    public func simulateResult(_ text: String) {
+        guard isListening else { return }
+        onStatus?(.results)
+        guard let filtered = resultFilter?(text) else { return }
+        isListening = false
+        onStatus?(.endOfSpeech)
+        onResult?(filtered)
+        onStatus?(.completed)
+    }
+    #else
     private func applyConfig() {
         let c = IATConfig.shared
         let params: [(String, String)] = [
@@ -59,10 +97,12 @@ public class SpeechRecognizer: NSObject {
         ]
         params.forEach { recognizer.setParameter($0.0, forKey: $0.1) }
     }
+    #endif
 }
 
 // MARK: - IFlySpeechRecognizerDelegate
 
+#if !targetEnvironment(simulator)
 extension SpeechRecognizer: IFlySpeechRecognizerDelegate {
 
     public func onBeginOfSpeech() { onStatus?(.beginOfSpeech) }
@@ -94,3 +134,5 @@ extension SpeechRecognizer: IFlySpeechRecognizerDelegate {
         }
     }
 }
+
+#endif

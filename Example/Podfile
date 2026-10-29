@@ -11,3 +11,8 @@ target 'EasyIFly_Example' do
     
   end
 end
+
+require_relative '../scripts/cocoapods_simulator'
+post_integrate do |installer|
+  easyifly_enable_simulator(installer)
+end

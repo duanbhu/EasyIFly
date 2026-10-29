@@ -1,28 +1,55 @@
 import XCTest
 import EasyIFly
 
-class Tests: XCTestCase {
-    
-    override func setUp() {
-        super.setUp()
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+final class Tests: XCTestCase {
+    #if targetEnvironment(simulator)
+    func testSimulatorIgnoresInputUntilStartedAndAfterStopped() {
+        let recognizer = SpeechRecognizer()
+        recognizer.resultFilter = { $0 }
+        var results: [String] = []
+        recognizer.onResult = { results.append($0) }
+        recognizer.simulateResult("before")
+        recognizer.startListening()
+        recognizer.stopListening()
+        recognizer.simulateResult("after")
+        XCTAssertTrue(results.isEmpty)
     }
-    
-    override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-        super.tearDown()
+
+    func testSimulatorFiltersRetriesAndDeliversOncePerSession() {
+        let recognizer = SpeechRecognizer()
+        recognizer.resultFilter = { $0.count == 11 ? $0 : nil }
+        var results: [String] = []
+        recognizer.onResult = { results.append($0) }
+        recognizer.startListening()
+        recognizer.simulateResult("invalid")
+        recognizer.simulateResult("13800138000")
+        recognizer.simulateResult("13900139000")
+        XCTAssertEqual(results, ["13800138000"])
+        recognizer.startListening()
+        recognizer.simulateResult("13900139000")
+        XCTAssertEqual(results, ["13800138000", "13900139000"])
     }
-    
-    func testExample() {
-        // This is an example of a functional test case.
-        XCTAssert(true, "Pass")
-    }
-    
-    func testPerformanceExample() {
-        // This is an example of a performance test case.
-        self.measure() {
-            // Put the code you want to measure the time of here.
+
+    func testSheetResultRemovesOverlayAndDismissesOnce() {
+        let completed = expectation(description: "UI lifecycle")
+        DispatchQueue.main.async {
+            var results: [String] = []
+            var dismissals = 0
+            let sheet = EasyIFly.showVirtualNumberInput(theme: .red, onResult: {
+                results.append($0)
+            }, onDismiss: { dismissals += 1 })
+            XCTAssertNotNil(sheet)
+            sheet?.simulateResult("invalid")
+            XCTAssertNotNil(sheet?.superview)
+            sheet?.simulateResult("138001380001234")
+            XCTAssertEqual(results, ["13800138000-1234"])
+            XCTAssertNil(sheet?.superview)
+            XCTAssertEqual(dismissals, 1)
+            sheet?.simulateResult("138001380001234")
+            XCTAssertEqual(dismissals, 1)
+            completed.fulfill()
         }
+        wait(for: [completed], timeout: 5)
     }
-    
+    #endif
 }

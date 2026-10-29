@@ -1,5 +1,4 @@
 import Foundation
-import iflyMSC
 
 public class EasyIFly {
 
@@ -10,6 +9,7 @@ public class EasyIFly {
     public static func showSpeechInput(
         title: String = "请语音输入",
         autoStart: Bool = true,
+        theme: SpeechRecognitionTheme = .blue,
         resultFilter: @escaping (String) -> String?,
         onResult: @escaping (String) -> Void,
         onDismiss: (() -> Void)? = nil
@@ -17,6 +17,7 @@ public class EasyIFly {
         return SpeechRecognitionView.show(
             title: title,
             autoStart: autoStart,
+            theme: theme,
             resultFilter: resultFilter,
             onResult: onResult,
             onDismiss: onDismiss
@@ -27,12 +28,14 @@ public class EasyIFly {
     @discardableResult
     public static func showPhoneInput(
         autoStart: Bool = true,
+        theme: SpeechRecognitionTheme = .blue,
         onResult: @escaping (String) -> Void,
         onDismiss: (() -> Void)? = nil
     ) -> SpeechRecognitionView? {
         return showSpeechInput(
             title: "请语音输入手机号",
             autoStart: autoStart,
+            theme: theme,
             resultFilter: { text in
                 let digits = text.filter(\.isNumber)
                 return digits.count == 11 ? digits : nil
@@ -46,12 +49,14 @@ public class EasyIFly {
     @discardableResult
     public static func showVirtualNumberInput(
         autoStart: Bool = true,
+        theme: SpeechRecognitionTheme = .blue,
         onResult: @escaping (String) -> Void,
         onDismiss: (() -> Void)? = nil
     ) -> SpeechRecognitionView? {
         return showSpeechInput(
             title: "请语音输入手机号",
             autoStart: autoStart,
+            theme: theme,
             resultFilter: { text in
                 let digits = text.filter(\.isNumber)
                 switch digits.count {

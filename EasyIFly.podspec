@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'EasyIFly'
-  s.version          = '1.0.0'
+  s.version          = '1.1.0'
   s.summary          = '基于 iflyMSC.framework 的 Swift 二次封装，提供语音听写能力。'
   s.description      = 'EasyIFly 对科大讯飞 iflyMSC.framework 进行 Swift 封装，简化语音听写集成流程。'
   s.homepage         = 'https://github.com/duanbhu/EasyIFly'
@@ -20,6 +20,7 @@ Pod::Spec.new do |s|
 
   # 讯飞 framework - 从 GitHub Release 下载
   s.vendored_frameworks = 'iflyMSC.xcframework'
+  s.preserve_paths = 'scripts/cocoapods_simulator.rb'
   
   s.prepare_command = <<-CMD
     curl -L https://github.com/duanbhu/EasyIFly/releases/download/1.0.0/iflyMSC.xcframework.zip -o iflyMSC.xcframework.zip
